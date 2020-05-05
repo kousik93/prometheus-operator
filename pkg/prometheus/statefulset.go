@@ -51,14 +51,22 @@ const (
 )
 
 var (
-	minReplicas                 int32 = 1
-	defaultMaxConcurrency       int32 = 20
-	managedByOperatorLabel            = "managed-by"
-	managedByOperatorLabelValue       = "prometheus-operator"
-	managedByOperatorLabels           = map[string]string{
+	minReplicas                              int32 = 1
+	defaultQueryMaxConcurrency               int32 = 20
+	defaultLivenessFailureThreshold          int32 = 6
+	defaultLivenessProbeInitialDelaySeconds  int32 = 0
+	defaultLivenessPeriodSeconds             int32 = 5
+	defaultLivenessProbeTimeoutSeconds       int32 = 3
+	defaultReadinessFailureThreshold         int32 = 120
+	defaultReadinessProbeInitialDelaySeconds int32 = 0
+	defaultReadinessPeriodSeconds            int32 = 5
+	defaultReadinessProbeTimeoutSeconds      int32 = 3
+
+	managedByOperatorLabel      = "managed-by"
+	managedByOperatorLabelValue = "prometheus-operator"
+	managedByOperatorLabels     = map[string]string{
 		managedByOperatorLabel: managedByOperatorLabelValue,
 	}
-	probeTimeoutSeconds int32 = 3
 )
 
 func makeStatefulSet(
@@ -387,7 +395,7 @@ func makeStatefulSetSpec(p monitoringv1.Prometheus, c *Config, ruleConfigMapName
 	if p.Spec.Query != nil {
 		if p.Spec.Query.MaxConcurrency != nil {
 			if *p.Spec.Query.MaxConcurrency < 1 {
-				p.Spec.Query.MaxConcurrency = &defaultMaxConcurrency
+				p.Spec.Query.MaxConcurrency = &defaultQueryMaxConcurrency
 			}
 			promArgs = append(promArgs,
 				fmt.Sprintf("-query.max-concurrency=%d", *p.Spec.Query.MaxConcurrency),
@@ -406,6 +414,14 @@ func makeStatefulSetSpec(p monitoringv1.Prometheus, c *Config, ruleConfigMapName
 
 	if p.Spec.ExternalURL != "" {
 		promArgs = append(promArgs, "-web.external-url="+p.Spec.ExternalURL)
+	}
+
+	if p.Spec.WebReadTimeout != "" {
+		promArgs = append(promArgs, "-web.read-timeout="+p.Spec.WebReadTimeout)
+	}
+
+	if p.Spec.WebMaxConnections != nil {
+		promArgs = append(promArgs, fmt.Sprintf("-web.max-connections=%d", *p.Spec.WebMaxConnections))
 	}
 
 	webRoutePrefix := "/"
@@ -583,7 +599,7 @@ func makeStatefulSetSpec(p monitoringv1.Prometheus, c *Config, ruleConfigMapName
 
 	var livenessProbeHandler v1.Handler
 	var readinessProbeHandler v1.Handler
-	var livenessFailureThreshold int32
+
 	if (version.Major == 1 && version.Minor >= 8) || version.Major == 2 {
 		{
 			healthyPath := path.Clean(webRoutePrefix + "/-/healthy")
@@ -623,8 +639,6 @@ func makeStatefulSetSpec(p monitoringv1.Prometheus, c *Config, ruleConfigMapName
 			}
 		}
 
-		livenessFailureThreshold = 6
-
 	} else {
 		livenessProbeHandler = v1.Handler{
 			HTTPGet: &v1.HTTPGetAction{
@@ -635,20 +649,47 @@ func makeStatefulSetSpec(p monitoringv1.Prometheus, c *Config, ruleConfigMapName
 		readinessProbeHandler = livenessProbeHandler
 		// For larger servers, restoring a checkpoint on startup may take quite a bit of time.
 		// Wait up to 5 minutes (60 fails * 5s per fail)
-		livenessFailureThreshold = 60
+		defaultLivenessFailureThreshold = 60
+	}
+
+	if p.Spec.LivenessFailureThreshold == nil {
+		p.Spec.LivenessFailureThreshold = &defaultLivenessFailureThreshold
+	}
+	if p.Spec.LivenessProbeInitialDelaySeconds == nil || *p.Spec.LivenessProbeInitialDelaySeconds < defaultLivenessProbeInitialDelaySeconds {
+		p.Spec.LivenessProbeInitialDelaySeconds = &defaultLivenessProbeInitialDelaySeconds
+	}
+	if p.Spec.LivenessPeriodSeconds == nil {
+		p.Spec.LivenessPeriodSeconds = &defaultLivenessPeriodSeconds
+	}
+	if p.Spec.LivenessProbeTimeoutSeconds == nil {
+		p.Spec.LivenessProbeTimeoutSeconds = &defaultLivenessProbeTimeoutSeconds
+	}
+	if p.Spec.ReadinessFailureThreshold == nil {
+		p.Spec.ReadinessFailureThreshold = &defaultReadinessFailureThreshold
+	}
+	if p.Spec.ReadinessProbeInitialDelaySeconds == nil || *p.Spec.ReadinessProbeInitialDelaySeconds < defaultReadinessProbeInitialDelaySeconds {
+		p.Spec.ReadinessProbeInitialDelaySeconds = &defaultReadinessProbeInitialDelaySeconds
+	}
+	if p.Spec.ReadinessPeriodSeconds == nil {
+		p.Spec.ReadinessPeriodSeconds = &defaultReadinessPeriodSeconds
+	}
+	if p.Spec.ReadinessProbeTimeoutSeconds == nil {
+		p.Spec.ReadinessProbeTimeoutSeconds = &defaultReadinessProbeTimeoutSeconds
 	}
 
 	livenessProbe := &v1.Probe{
-		Handler:          livenessProbeHandler,
-		PeriodSeconds:    5,
-		TimeoutSeconds:   probeTimeoutSeconds,
-		FailureThreshold: livenessFailureThreshold,
+		Handler:             livenessProbeHandler,
+		FailureThreshold:    *p.Spec.LivenessFailureThreshold,
+		InitialDelaySeconds: *p.Spec.LivenessProbeInitialDelaySeconds,
+		PeriodSeconds:       *p.Spec.LivenessPeriodSeconds,
+		TimeoutSeconds:      *p.Spec.LivenessProbeTimeoutSeconds,
 	}
 	readinessProbe := &v1.Probe{
-		Handler:          readinessProbeHandler,
-		TimeoutSeconds:   probeTimeoutSeconds,
-		PeriodSeconds:    5,
-		FailureThreshold: 120, // Allow up to 10m on startup for data recovery
+		Handler:             readinessProbeHandler,
+		FailureThreshold:    *p.Spec.ReadinessFailureThreshold,
+		InitialDelaySeconds: *p.Spec.ReadinessProbeInitialDelaySeconds,
+		PeriodSeconds:       *p.Spec.ReadinessPeriodSeconds,
+		TimeoutSeconds:      *p.Spec.ReadinessProbeTimeoutSeconds,
 	}
 
 	podAnnotations := map[string]string{}
