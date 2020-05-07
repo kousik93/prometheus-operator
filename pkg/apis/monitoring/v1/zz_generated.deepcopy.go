@@ -759,6 +759,51 @@ func (in *PrometheusSpec) DeepCopyInto(out *PrometheusSpec) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.LivenessFailureThreshold != nil {
+		in, out := &in.LivenessFailureThreshold, &out.LivenessFailureThreshold
+		*out = new(int32)
+		**out = **in
+	}
+	if in.LivenessProbeInitialDelaySeconds != nil {
+		in, out := &in.LivenessProbeInitialDelaySeconds, &out.LivenessProbeInitialDelaySeconds
+		*out = new(int32)
+		**out = **in
+	}
+	if in.LivenessPeriodSeconds != nil {
+		in, out := &in.LivenessPeriodSeconds, &out.LivenessPeriodSeconds
+		*out = new(int32)
+		**out = **in
+	}
+	if in.LivenessProbeTimeoutSeconds != nil {
+		in, out := &in.LivenessProbeTimeoutSeconds, &out.LivenessProbeTimeoutSeconds
+		*out = new(int32)
+		**out = **in
+	}
+	if in.ReadinessFailureThreshold != nil {
+		in, out := &in.ReadinessFailureThreshold, &out.ReadinessFailureThreshold
+		*out = new(int32)
+		**out = **in
+	}
+	if in.ReadinessProbeInitialDelaySeconds != nil {
+		in, out := &in.ReadinessProbeInitialDelaySeconds, &out.ReadinessProbeInitialDelaySeconds
+		*out = new(int32)
+		**out = **in
+	}
+	if in.ReadinessPeriodSeconds != nil {
+		in, out := &in.ReadinessPeriodSeconds, &out.ReadinessPeriodSeconds
+		*out = new(int32)
+		**out = **in
+	}
+	if in.ReadinessProbeTimeoutSeconds != nil {
+		in, out := &in.ReadinessProbeTimeoutSeconds, &out.ReadinessProbeTimeoutSeconds
+		*out = new(int32)
+		**out = **in
+	}
+	if in.WebMaxConnections != nil {
+		in, out := &in.WebMaxConnections, &out.WebMaxConnections
+		*out = new(int32)
+		**out = **in
+	}
 	out.Rules = in.Rules
 	if in.ExternalLabels != nil {
 		in, out := &in.ExternalLabels, &out.ExternalLabels

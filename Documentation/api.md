@@ -398,6 +398,16 @@ PrometheusSpec is a specification of the desired behavior of the Prometheus clus
 | logFormat | Log format for Prometheus to be configured with. | string | false |
 | scrapeInterval | Interval between consecutive scrapes. | string | false |
 | evaluationInterval | Interval between consecutive evaluations. | string | false |
+| livenessFailureThreshold | Number of times Liveness Probe can fail before killing pod | *int32 | false |
+| livenessProbeInitialDelaySeconds | Time in seconds before which Liveness Probes will start | *int32 | false |
+| livenessPeriodSeconds | Liveness Probe PeriodSeconds | *int32 | false |
+| livenessProbeTimeoutSeconds | Timeout in seconds for liveness probe | *int32 | false |
+| readinessFailureThreshold | Number of times Readiness Probe can fail before taking pod out of rotation | *int32 | false |
+| readinessProbeInitialDelaySeconds | Time in seconds before which Readiness Probes will start | *int32 | false |
+| readinessPeriodSeconds | Readiness Probe PeriodSeconds | *int32 | false |
+| readinessProbeTimeoutSeconds | Timeout in seconds for readiness probe | *int32 | false |
+| webReadTimeout | Maximum duration before timing out read of the request, and closing idle connections. | string | false |
+| webMaxConnections | Maximum number of simultaneous connections | *int32 | false |
 | rules | /--rules.*/ command-line arguments. | [Rules](#rules) | false |
 | externalLabels | The labels to add to any time series or alerts when communicating with external systems (federation, remote storage, Alertmanager). | map[string]string | false |
 | enableAdminAPI | Enable access to prometheus web admin API. Defaults to the value of `false`. WARNING: Enabling the admin APIs enables mutating endpoints, to delete data, shutdown Prometheus, and more. Enabling this should be done with care and the user is advised to add additional authentication authorization via a proxy to ensure only clients authorized to perform these actions can do so. For more information see https://prometheus.io/docs/prometheus/latest/querying/api/#tsdb-admin-apis | bool | false |

@@ -8162,6 +8162,23 @@ spec:
                 description: ListenLocal makes the Prometheus server listen on loopback,
                   so that it does not bind against the Pod IP.
                 type: boolean
+              livenessFailureThreshold:
+                description: Number of times Liveness Probe can fail before killing
+                  pod
+                format: int32
+                type: integer
+              livenessPeriodSeconds:
+                description: Liveness Probe PeriodSeconds
+                format: int32
+                type: integer
+              livenessProbeInitialDelaySeconds:
+                description: Time in seconds before which Liveness Probes will start
+                format: int32
+                type: integer
+              livenessProbeTimeoutSeconds:
+                description: Timeout in seconds for liveness probe
+                format: int32
+                type: integer
               logFormat:
                 description: Log format for Prometheus to be configured with.
                 type: string
@@ -8349,6 +8366,23 @@ spec:
                   in versions of Prometheus >= 2.16.0. For more details, see the Prometheus
                   docs (https://prometheus.io/docs/guides/query-log/)
                 type: string
+              readinessFailureThreshold:
+                description: Number of times Readiness Probe can fail before taking
+                  pod out of rotation
+                format: int32
+                type: integer
+              readinessPeriodSeconds:
+                description: Readiness Probe PeriodSeconds
+                format: int32
+                type: integer
+              readinessProbeInitialDelaySeconds:
+                description: Time in seconds before which Readiness Probes will start
+                format: int32
+                type: integer
+              readinessProbeTimeoutSeconds:
+                description: Timeout in seconds for readiness probe
+                format: int32
+                type: integer
               remoteRead:
                 description: If specified, the remote_read spec. This is an experimental
                   feature, it may change in any upcoming release in a breaking way.
@@ -11012,6 +11046,14 @@ spec:
                 description: Enable compression of the write-ahead log using Snappy.
                   This flag is only available in versions of Prometheus >= 2.11.0.
                 type: boolean
+              webMaxConnections:
+                description: Maximum number of simultaneous connections
+                format: int32
+                type: integer
+              webReadTimeout:
+                description: Maximum duration before timing out read of the request,
+                  and closing idle connections.
+                type: string
             type: object
           status:
             description: 'Most recent observed status of the Prometheus cluster. Read-only.
