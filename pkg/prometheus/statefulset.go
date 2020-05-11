@@ -63,6 +63,7 @@ var (
 	managedByOperatorLabels     = map[string]string{
 		managedByOperatorLabel: managedByOperatorLabelValue,
 	}
+	probeTimeoutSeconds int32 = 3
 )
 
 func makeStatefulSet(
