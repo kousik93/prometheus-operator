@@ -154,18 +154,6 @@ type PrometheusSpec struct {
 	LivenessPeriodSeconds *int32 `json:"livenessPeriodSeconds,omitempty"`
 	// Timeout in seconds for liveness probe
 	LivenessProbeTimeoutSeconds *int32 `json:"livenessProbeTimeoutSeconds,omitempty"`
-	// Number of times Readiness Probe can fail before taking pod out of rotation
-	ReadinessFailureThreshold *int32 `json:"readinessFailureThreshold,omitempty"`
-	// Time in seconds before which Readiness Probes will start
-	ReadinessProbeInitialDelaySeconds *int32 `json:"readinessProbeInitialDelaySeconds,omitempty"`
-	// Readiness Probe PeriodSeconds
-	ReadinessPeriodSeconds *int32 `json:"readinessPeriodSeconds,omitempty"`
-	// Timeout in seconds for readiness probe
-	ReadinessProbeTimeoutSeconds *int32 `json:"readinessProbeTimeoutSeconds,omitempty"`
-	// Maximum duration before timing out read of the request, and closing idle connections.
-	WebReadTimeout string `json:"webReadTimeout,omitempty"`
-	// Maximum number of simultaneous connections
-	WebMaxConnections *int32 `json:"webMaxConnections,omitempty"`
 	// /--rules.*/ command-line arguments.
 	Rules Rules `json:"rules,omitempty"`
 	// The labels to add to any time series or alerts when communicating with
